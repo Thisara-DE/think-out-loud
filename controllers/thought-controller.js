@@ -49,6 +49,24 @@ const ThoughtController = {
         }
     },
 
+    // add a reaction /api/thoughts/:thoughtId/reactions
+    async addReaction({ params, body }, res) {
+        try{
+            const dbThoughtData = await Thought.findOneAndUpdate({ _id: params.thoughtId}, { $push: { reactions: body }}, {new: true, runValidators: true});
+
+            if(!dbThoughtData) {
+                res.status(404).json({ message: 'No thought found with this userId!' });
+                return;
+            }
+            res.json(dbThoughtData);
+        }
+        catch{
+            console.log(err);
+            res.status(500).json(err);
+        }
+        
+    },
+
     // Update a thought by id
     async updateThought({ params, body }, res, err) {
         try{
@@ -56,6 +74,23 @@ const ThoughtController = {
 
             if(!dbThoughtData) {
                 res.status(404).json({ message: 'No thought found with this userId!' });
+                return;
+            }
+            res.json(dbThoughtData);
+        }
+        catch{
+            console.log(err);
+            res.status(500).json(err);
+        }
+    },
+
+    // remove a reaction /api/thoughts/:thoughtId/reactions/:reactionId
+    async removeReaction({ params }, res) {
+        try{
+            const dbThoughtData = await Thought.findOneAndUpdate({ _id: params.thoughtId }, { $pull: {reactions: { reactionId: params.reactionId }}}, { new: true });
+
+            if(!dbThoughtData) {
+                res.status(404).json({ message: 'No reaction found with this userId!' });
                 return;
             }
             res.json(dbThoughtData);
